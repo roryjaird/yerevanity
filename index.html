@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project: YereVanity</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #181818;
+    --border: #252525;
+    --accent: #c8ff00;
+    --text: #f0f0f0;
+    --muted: #555;
+    --muted2: #888;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; overflow-x: hidden; }
+
+  header { padding: 20px 24px 16px; display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid var(--border); }
+  .logo { font-family: 'Bebas Neue', cursive; font-size: 1.8rem; letter-spacing: 3px; color: var(--accent); }
+  .date-chip { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--muted2); letter-spacing: 1px; text-transform: uppercase; }
+
+  .nav { display: flex; border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav-tab { padding: 14px 20px; font-size: 0.72rem; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); cursor: pointer; border: none; background: none; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; transition: color 0.2s, border-color 0.2s; }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .main { padding: 0 0 120px; }
+
+  .data-banner { margin: 12px 16px 0; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .data-banner-text { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--muted2); letter-spacing: 0.5px; line-height: 1.6; }
+  .data-banner-text strong { color: var(--accent); font-weight: 500; }
+  .data-banner-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .btn-data { background: none; border: 1px solid var(--border); color: var(--muted2); padding: 7px 12px; font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border-radius: 3px; transition: color 0.2s, border-color 0.2s; white-space: nowrap; }
+  .btn-data:hover { color: var(--text); border-color: #444; }
+  .btn-data.accent { border-color: var(--accent); color: var(--accent); }
+  .btn-data.accent:hover { background: rgba(200,255,0,0.07); }
+
+  .session-header { padding: 20px 24px 16px; display: flex; justify-content: space-between; align-items: center; }
+  .session-title { font-family: 'Bebas Neue', cursive; font-size: 2.6rem; letter-spacing: 2px; line-height: 1; }
+  .session-meta { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--muted2); letter-spacing: 1px; margin-top: 4px; }
+
+  .btn-start { background: var(--accent); color: #000; border: none; padding: 10px 22px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.78rem; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; border-radius: 2px; white-space: nowrap; }
+  .btn-finish { background: transparent; color: var(--accent); border: 1px solid var(--accent); padding: 10px 22px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.78rem; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; border-radius: 2px; white-space: nowrap; }
+
+  .session-progress { height: 2px; background: var(--border); margin: 0 24px 20px; border-radius: 1px; overflow: hidden; }
+  .session-progress-fill { height: 100%; background: var(--accent); border-radius: 1px; transition: width 0.4s ease; }
+
+  .exercise-list { padding: 0 16px; display: flex; flex-direction: column; gap: 10px; }
+  .exercise-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  .exercise-header { padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+  .exercise-name { font-weight: 500; font-size: 0.92rem; }
+  .exercise-target { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--muted2); letter-spacing: 1px; }
+  .ex-right { display: flex; align-items: center; gap: 12px; }
+  .sets-done { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted2); }
+  .sets-done.complete { color: var(--accent); }
+  .chevron { color: var(--muted); font-size: 0.7rem; transition: transform 0.2s; }
+  .exercise-card.open .chevron { transform: rotate(180deg); }
+  .sets-panel { display: none; padding: 0 16px 14px; border-top: 1px solid var(--border); }
+  .exercise-card.open .sets-panel { display: block; }
+  .sets-header { display: grid; grid-template-columns: 32px 1fr 1fr 50px; gap: 8px; padding: 10px 0 6px; font-family: 'DM Mono', monospace; font-size: 0.6rem; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; }
+  .set-row { display: grid; grid-template-columns: 32px 1fr 1fr 50px; gap: 8px; padding: 5px 0; align-items: center; }
+  .set-num { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--muted); }
+  .set-input { background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.82rem; padding: 6px 8px; text-align: center; width: 100%; outline: none; transition: border-color 0.15s; }
+  .set-input:focus { border-color: var(--accent); }
+  .set-input::placeholder { color: var(--muted); }
+  .set-check { width: 28px; height: 28px; border: 1.5px solid var(--border); border-radius: 3px; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: transparent; font-size: 0.8rem; transition: all 0.15s; justify-self: center; }
+  .set-check:hover { border-color: var(--accent); }
+  .set-check.checked { background: var(--accent); border-color: var(--accent); color: #000; }
+  .prev-best { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--muted); padding: 8px 0 2px; }
+  .prev-best span { color: var(--muted2); }
+
+  .notes-row { padding: 8px 0 2px; }
+  .notes-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--muted2);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    padding: 7px 10px;
+    resize: none;
+    outline: none;
+    line-height: 1.5;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .notes-input:focus { border-color: #333; color: var(--text); }
+  .notes-input::placeholder { color: var(--muted); }
+
+  .progress-section { padding: 20px 24px; }
+  .progress-title { font-family: 'Bebas Neue', cursive; font-size: 1.8rem; letter-spacing: 2px; margin-bottom: 16px; }
+  .select-exercise { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.75rem; padding: 10px 14px; width: 100%; outline: none; cursor: pointer; margin-bottom: 20px; }
+  .select-exercise option { background: #111; }
+  .chart-area { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 16px; min-height: 200px; }
+  .chart-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; }
+  canvas#progressChart { width: 100% !important; height: 160px !important; }
+  .no-data { display: flex; align-items: center; justify-content: center; height: 140px; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 1px; text-align: center; padding: 0 20px; }
+  .history-list { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
+  .history-item { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; }
+  .history-date { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted2); }
+  .history-best { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--accent); }
+
+  .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 24px; gap: 10px; color: var(--muted); }
+  .empty-icon { font-size: 2.5rem; margin-bottom: 8px; }
+  .empty-text { font-size: 0.85rem; text-align: center; line-height: 1.6; }
+
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--accent); color: #000; padding: 10px 22px; border-radius: 3px; font-size: 0.78rem; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; z-index: 100; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: none; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal-box { background: #111; border: 1px solid #252525; border-radius: 8px; padding: 24px; width: calc(100% - 48px); max-width: 340px; }
+  .modal-title { font-family: 'Bebas Neue', cursive; font-size: 1.6rem; letter-spacing: 2px; margin-bottom: 16px; }
+  .modal-btn { width: 100%; padding: 12px; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.78rem; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; border-radius: 2px; margin-bottom: 8px; }
+  .modal-btn.primary { background: var(--accent); color: #000; border: none; }
+  .modal-btn.secondary { background: none; border: 1px solid #252525; color: #888; }
+
+  /* LOAD SCREEN */
+  #loadScreen { position: fixed; inset: 0; background: var(--bg); z-index: 300; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; padding: 40px; }
+  .load-logo { font-family: 'Bebas Neue', cursive; font-size: 2.2rem; letter-spacing: 4px; color: var(--accent); text-align: center; }
+  .load-subtitle { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; text-align: center; margin-top: -12px; }
+  .load-divider { width: 40px; height: 1px; background: var(--border); }
+  .load-desc { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted2); text-align: center; line-height: 1.8; max-width: 280px; }
+  .load-desc strong { color: var(--text); }
+  .load-actions { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 280px; }
+  .btn-load-file { background: var(--accent); color: #000; border: none; padding: 14px; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; border-radius: 3px; text-align: center; display: block; }
+  .btn-fresh-start { background: none; color: var(--muted2); border: 1px solid var(--border); padding: 12px; font-family: 'DM Sans', sans-serif; font-size: 0.75rem; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; border-radius: 3px; text-align: center; width: 100%; }
+</style>
+</head>
+<body>
+
+<!-- LOAD SCREEN -->
+<div id="loadScreen">
+  <div class="load-logo">Project: YereVanity</div>
+  <div class="load-subtitle">Workout Tracker</div>
+  <div class="load-divider"></div>
+  <div class="load-desc">
+    Your progress is saved as a <strong>JSON file on your device</strong> — safe from browser cache clears.<br><br>
+    Load your existing save file, or start fresh.
+  </div>
+  <div class="load-actions">
+    <button class="btn-load-file" onclick="pickAndLoadFile()">📂 Load Save File</button>
+    <input type="file" id="loadFileInput" accept=".json" style="display:none" onchange="loadFromFileFallback(event)">
+    <button class="btn-fresh-start" onclick="freshStart()">Start Fresh</button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="appShell" style="display:none">
+
+<header>
+  <div class="logo">Project: YereVanity</div>
+  <div class="date-chip" id="headerDate"></div>
+</header>
+
+<nav class="nav">
+  <button class="nav-tab active" onclick="showTab('workout')">Workout</button>
+  <button class="nav-tab" onclick="showTab('progress')">Progress</button>
+  <button class="nav-tab" onclick="showTab('history')">History</button>
+</nav>
+
+<div class="main">
+
+  <!-- WORKOUT TAB -->
+  <div id="tab-workout">
+    <div class="data-banner">
+      <div class="data-banner-text" id="dataBannerText">No save file loaded</div>
+      <div class="data-banner-actions">
+        <button class="btn-data accent" onclick="saveData()">💾 Save</button>
+        <button class="btn-data" onclick="pickAndLoadFile()">📂 Load</button>
+        <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="manualLoad(event)">
+      </div>
+    </div>
+
+    <div class="session-header">
+      <div>
+        <div class="session-title" id="sessionTitle">SELECT DAY</div>
+        <div class="session-meta" id="sessionMeta">Choose a workout to begin</div>
+      </div>
+      <div id="sessionAction">
+        <button class="btn-start" onclick="showDayPicker()">Pick Day</button>
+      </div>
+    </div>
+
+    <div class="session-progress">
+      <div class="session-progress-fill" id="sessionProgressFill" style="width:0%"></div>
+    </div>
+
+    <div class="exercise-list" id="exerciseList">
+      <div class="empty-state">
+        <div class="empty-icon">🏋️</div>
+        <div class="empty-text">Select a workout day to begin tracking your session.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROGRESS TAB -->
+  <div id="tab-progress" style="display:none">
+    <div class="progress-section">
+      <div class="progress-title">PROGRESS</div>
+      <select class="select-exercise" id="progressExerciseSelect" onchange="renderProgressChart()">
+        <option value="">— Select Exercise —</option>
+      </select>
+      <div class="chart-area">
+        <div class="chart-label">Max Weight Over Time</div>
+        <div id="chartContainer">
+          <div class="no-data">No data yet — complete workouts to see progress</div>
+        </div>
+      </div>
+      <div class="history-list" id="progressHistoryList"></div>
+    </div>
+  </div>
+
+  <!-- HISTORY TAB -->
+  <div id="tab-history" style="display:none">
+    <div class="progress-section">
+      <div class="progress-title">HISTORY</div>
+      <div id="historyList">
+        <div class="no-data" style="height:120px;">No sessions logged yet</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- DAY PICKER MODAL -->
+<div class="modal-overlay" id="dayPickerModal">
+  <div class="modal-box">
+    <div class="modal-title">Select Day</div>
+    <div style="display:flex;flex-direction:column;gap:8px;" id="dayPickerList"></div>
+    <button class="modal-btn secondary" onclick="closeModal('dayPickerModal')" style="margin-top:12px;">Cancel</button>
+  </div>
+</div>
+
+<!-- FINISH MODAL -->
+<div class="modal-overlay" id="finishModal">
+  <div class="modal-box" style="text-align:center">
+    <div style="font-family:'Bebas Neue',cursive;font-size:2rem;letter-spacing:2px;color:var(--accent);margin-bottom:8px;">SESSION DONE</div>
+    <div style="font-size:0.85rem;color:#888;margin-bottom:20px;line-height:1.7;" id="sessionSummaryText"></div>
+    <button class="modal-btn primary" onclick="confirmFinish()">✓ Save Session</button>
+    <button class="modal-btn secondary" onclick="closeModal('finishModal')">Keep Going</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+const PROGRAM = {
+  "Lower A": [
+    { name: "Dumbbell Rows", sets: 4, reps: "8" },
+    { name: "Seated Bicep Curl", sets: 3, reps: "10" },
+    { name: "Hack Squat", sets: 3, reps: "8" },
+    { name: "Plate Row", sets: 3, reps: "10" },
+    { name: "Hammer Curl", sets: 3, reps: "10" },
+    { name: "Leg Extension", sets: 3, reps: "8" },
+    { name: "Hyperextensions", sets: 3, reps: "12" },
+    { name: "Preacher Curl", sets: 3, reps: "8" },
+    { name: "Two-Leg Calf Raises", sets: 3, reps: "20" },
+  ],
+  "Upper A": [
+    { name: "Dumbbell Lat Raises", sets: 3, reps: "10" },
+    { name: "Incline Dumbbell Press", sets: 5, reps: "6" },
+    { name: "Tricep Pushdowns", sets: 3, reps: "12-8" },
+    { name: "Shoulder Press Machine", sets: 4, reps: "10-4" },
+    { name: "Rear Delt Cables", sets: 3, reps: "12" },
+    { name: "Overhead Tricep Extension", sets: 3, reps: "10" },
+    { name: "Pec Dec Machine", sets: 4, reps: "12" },
+    { name: "Tricep Cable Extension", sets: 3, reps: "12" },
+  ],
+  "Lower B": [
+    { name: "Lunges", sets: 3, reps: "12" },
+    { name: "Lat Pulldown", sets: 3, reps: "12-8" },
+    { name: "One-Arm Decline Curl", sets: 3, reps: "8" },
+    { name: "Hamstring Curl", sets: 3, reps: "10" },
+    { name: "Chest Supported Row", sets: 3, reps: "10" },
+    { name: "Bayesian Curl", sets: 3, reps: "10" },
+    { name: "One-Leg Calf Raises", sets: 3, reps: "8" },
+    { name: "Hyperextensions", sets: 3, reps: "12" },
+    { name: "EZ Bar Curl", sets: 3, reps: "8" },
+  ],
+  "Upper B": [
+    { name: "Dumbbell Lat Raises", sets: 3, reps: "10" },
+    { name: "Bench Press", sets: 4, reps: "12-6" },
+    { name: "Dumbbell Shoulder Press", sets: 4, reps: "6" },
+    { name: "Skull Crushers + CG SS", sets: 4, reps: "8+10" },
+    { name: "Rope Facepulls", sets: 3, reps: "12" },
+    { name: "Cable Flies", sets: 4, reps: "12" },
+    { name: "Tricep Extensions", sets: 3, reps: "12" },
+  ],
+};
+
+let history = [];
+let currentDay = null;
+let sessionData = {};
+let sessionStart = null;
+let progressChart = null;
+let fileHandle = null;
+let exerciseNotes = {}; // { exName: "note text" } — persists in save file
+
+// ── LOAD SCREEN ───────────────────────────────────────────────────────────────
+function freshStart() {
+  history = [];
+  exerciseNotes = {};
+  fileHandle = null;
+  launchApp();
+}
+
+function parseSaveData(raw) {
+  // Support old format (plain array) and new format ({ sessions, notes })
+  if (Array.isArray(raw)) {
+    history = raw;
+    exerciseNotes = {};
+  } else if (raw && Array.isArray(raw.sessions)) {
+    history = raw.sessions;
+    exerciseNotes = raw.notes || {};
+  } else {
+    throw new Error('bad');
+  }
+}
+
+async function pickAndLoadFile() {
+  if (!('showOpenFilePicker' in window)) {
+    document.getElementById('loadFileInput').click();
+    return;
+  }
+  try {
+    const [handle] = await window.showOpenFilePicker({
+      types: [{ description: 'YereVanity Save', accept: { 'application/json': ['.json'] } }],
+    });
+    fileHandle = handle;
+    const file = await handle.getFile();
+    parseSaveData(JSON.parse(await file.text()));
+    launchApp();
+    showToast('Loaded ' + history.length + ' sessions');
+  } catch (err) {
+    if (err.name !== 'AbortError') alert('Could not read save file.');
+  }
+}
+
+function loadFromFileFallback(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      parseSaveData(JSON.parse(e.target.result));
+      fileHandle = null;
+      launchApp();
+      showToast('Loaded ' + history.length + ' sessions');
+    } catch { alert('Could not read save file.'); }
+  };
+  reader.readAsText(file);
+}
+
+function launchApp() {
+  document.getElementById('loadScreen').style.display = 'none';
+  document.getElementById('appShell').style.display = 'block';
+  document.getElementById('headerDate').textContent =
+    new Date().toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }).toUpperCase();
+  updateDataBanner();
+}
+
+// ── SAVE (auto-overwrite if handle exists, else prompt for location) ───────────
+async function saveData() {
+  const saveObj = { sessions: history, notes: exerciseNotes };
+  const json = JSON.stringify(saveObj, null, 2);
+  if ('showSaveFilePicker' in window) {
+    try {
+      if (!fileHandle) {
+        fileHandle = await window.showSaveFilePicker({
+          suggestedName: 'yerevanity-progress.json',
+          types: [{ description: 'YereVanity Save', accept: { 'application/json': ['.json'] } }],
+        });
+      }
+      const writable = await fileHandle.createWritable();
+      await writable.write(json);
+      await writable.close();
+      showToast('Auto-saved ✓');
+      updateDataBanner();
+      return;
+    } catch (err) {
+      if (err.name === 'AbortError') return;
+    }
+  }
+  // Fallback download
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'yerevanity-progress.json'; a.click();
+  URL.revokeObjectURL(url);
+  showToast('Downloaded ✓');
+  updateDataBanner();
+}
+
+async function manualLoad(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      parseSaveData(JSON.parse(e.target.result));
+      fileHandle = null;
+      updateDataBanner();
+      showToast('Loaded ' + history.length + ' sessions');
+    } catch { alert('Invalid save file.'); }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function updateDataBanner() {
+  const el = document.getElementById('dataBannerText');
+  if (!history.length) {
+    el.innerHTML = '<strong>No sessions yet.</strong> Finish a workout to save your progress.';
+  } else {
+    const last = history[history.length - 1];
+    const lastDate = new Date(last.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+    el.innerHTML = '<strong>' + history.length + ' sessions</strong> · Last: ' + last.day + ' ' + lastDate +
+      (fileHandle ? '<br><span style="color:var(--accent);">● Auto-save active</span>' : '<br>Tap 💾 Save to set a save location');
+  }
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function showTab(tab) {
+  ['workout','progress','history'].forEach(t => {
+    document.getElementById('tab-' + t).style.display = t === tab ? 'block' : 'none';
+  });
+  document.querySelectorAll('.nav-tab').forEach((el, i) => {
+    el.classList.toggle('active', ['workout','progress','history'][i] === tab);
+  });
+  if (tab === 'progress') populateProgressSelect();
+  if (tab === 'history') renderHistory();
+}
+
+// ── MODALS ────────────────────────────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ── DAY PICKER ────────────────────────────────────────────────────────────────
+function showDayPicker() {
+  const list = document.getElementById('dayPickerList');
+  list.innerHTML = '';
+  Object.keys(PROGRAM).forEach(day => {
+    const btn = document.createElement('button');
+    btn.style.cssText = 'background:#181818;border:1px solid #252525;color:#f0f0f0;padding:14px 16px;text-align:left;font-family:"DM Sans",sans-serif;font-size:0.88rem;cursor:pointer;border-radius:3px;display:flex;justify-content:space-between;align-items:center;width:100%;';
+    btn.innerHTML = '<span>' + day + '</span><span style="font-family:\'DM Mono\',monospace;font-size:0.65rem;color:#555;">' + PROGRAM[day].length + ' ex</span>';
+    btn.onclick = () => { selectDay(day); closeModal('dayPickerModal'); };
+    list.appendChild(btn);
+  });
+  openModal('dayPickerModal');
+}
+
+// ── SELECT DAY ────────────────────────────────────────────────────────────────
+function selectDay(day) {
+  currentDay = day;
+  sessionStart = Date.now();
+  sessionData = {};
+  PROGRAM[day].forEach(ex => {
+    sessionData[ex.name] = Array.from({ length: ex.sets }, () => ({ weight: '', reps: '', done: false }));
+  });
+  document.getElementById('sessionTitle').textContent = day.toUpperCase();
+  document.getElementById('sessionMeta').textContent =
+    PROGRAM[day].length + ' exercises · ' + PROGRAM[day].reduce((a,e)=>a+e.sets,0) + ' sets total';
+  document.getElementById('sessionAction').innerHTML =
+    '<button class="btn-finish" onclick="openFinishModal()">Finish</button>';
+  renderExercises();
+  updateProgress();
+}
+
+// ── EXERCISES ─────────────────────────────────────────────────────────────────
+function renderExercises() {
+  if (!currentDay) return;
+  const list = document.getElementById('exerciseList');
+  list.innerHTML = '';
+  PROGRAM[currentDay].forEach((ex, idx) => {
+    const sets = sessionData[ex.name];
+    const doneSets = sets.filter(s => s.done).length;
+    const complete = doneSets === ex.sets;
+    const lastSets = getLastSessionSets(ex.name);
+    const note = exerciseNotes[ex.name] || '';
+
+    const card = document.createElement('div');
+    card.className = 'exercise-card';
+    card.id = 'excard-' + idx;
+    card.innerHTML =
+      '<div class="exercise-header" onclick="toggleCard(' + idx + ')">' +
+        '<div>' +
+          '<div class="exercise-name">' + ex.name + '</div>' +
+          '<div class="exercise-target">' + ex.sets + ' x ' + ex.reps + ' reps</div>' +
+        '</div>' +
+        '<div class="ex-right">' +
+          '<div class="sets-done' + (complete?' complete':'') + '">' + doneSets + '/' + ex.sets + '</div>' +
+          '<div class="chevron">▼</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="sets-panel">' +
+        '<div class="sets-header"><span>#</span><span>WEIGHT</span><span>REPS</span><span>✓</span></div>' +
+        sets.map((s, si) => {
+          const lastSet = lastSets && lastSets[si] ? lastSets[si] : null;
+          const weightPh = lastSet && lastSet.weight ? lastSet.weight : 'kg';
+          const repsPh = lastSet && lastSet.reps ? lastSet.reps : ex.reps;
+          return '<div class="set-row">' +
+            '<span class="set-num">' + (si+1) + '</span>' +
+            '<input class="set-input" type="number" placeholder="' + weightPh + '" value="' + s.weight + '" oninput="updateSet(' + idx + ',' + si + ',\'weight\',this.value)" inputmode="decimal">' +
+            '<input class="set-input" type="number" placeholder="' + repsPh + '" value="' + s.reps + '" oninput="updateSet(' + idx + ',' + si + ',\'reps\',this.value)" inputmode="numeric">' +
+            '<div class="set-check' + (s.done?' checked':'') + '" onclick="toggleDone(' + idx + ',' + si + ')">✓</div>' +
+          '</div>';
+        }).join('') +
+        '<div class="notes-row">' +
+          '<textarea class="notes-input" rows="2" placeholder="Notes (e.g. easy, height 3)..." oninput="updateNote(\'' + ex.name.replace(/'/g, "\\'") + '\', this.value)">' + note + '</textarea>' +
+        '</div>' +
+      '</div>';
+    list.appendChild(card);
+  });
+}
+
+function toggleCard(idx) { document.getElementById('excard-' + idx).classList.toggle('open'); }
+
+function updateSet(exIdx, setIdx, field, val) {
+  sessionData[PROGRAM[currentDay][exIdx].name][setIdx][field] = val;
+}
+
+function updateNote(exName, val) {
+  if (val.trim()) {
+    exerciseNotes[exName] = val;
+  } else {
+    delete exerciseNotes[exName];
+  }
+}
+
+function toggleDone(exIdx, setIdx) {
+  const ex = PROGRAM[currentDay][exIdx];
+  const set = sessionData[ex.name][setIdx];
+  set.done = !set.done;
+  const card = document.getElementById('excard-' + exIdx);
+  card.querySelectorAll('.set-check')[setIdx].classList.toggle('checked', set.done);
+  const sets = sessionData[ex.name];
+  const doneSets = sets.filter(s => s.done).length;
+  const complete = doneSets === ex.sets;
+  const doneEl = card.querySelector('.sets-done');
+  doneEl.textContent = doneSets + '/' + ex.sets;
+  doneEl.className = 'sets-done' + (complete ? ' complete' : '');
+  updateProgress();
+  if (complete) showToast(ex.name + ' complete!');
+}
+
+function updateProgress() {
+  if (!currentDay) return;
+  const exercises = PROGRAM[currentDay];
+  const total = exercises.reduce((a, e) => a + e.sets, 0);
+  const done = exercises.reduce((a, e) => a + sessionData[e.name].filter(s => s.done).length, 0);
+  document.getElementById('sessionProgressFill').style.width = (total ? done/total*100 : 0) + '%';
+}
+
+// ── LAST SESSION & PREV BEST ──────────────────────────────────────────────────
+function getLastSessionSets(exName) {
+  // Returns the sets array from the most recent session that included this exercise
+  for (let i = history.length - 1; i >= 0; i--) {
+    const sess = history[i];
+    if (sess.exercises && sess.exercises[exName]) {
+      const sets = sess.exercises[exName].filter(s => s.done);
+      if (sets.length) return sets;
+    }
+  }
+  return null;
+}
+
+function getPrevBest(exName) {
+  for (let i = history.length - 1; i >= 0; i--) {
+    const sess = history[i];
+    if (sess.exercises && sess.exercises[exName]) {
+      const sets = sess.exercises[exName].filter(s => s.done && s.reps);
+      if (sets.length) {
+        return sets.reduce((a, s) =>
+          (parseFloat(s.weight)||0)*(parseFloat(s.reps)||1) > (parseFloat(a.weight)||0)*(parseFloat(a.reps)||1) ? s : a
+        );
+      }
+    }
+  }
+  return null;
+}
+
+// ── FINISH SESSION ────────────────────────────────────────────────────────────
+function openFinishModal() {
+  const exercises = PROGRAM[currentDay];
+  const total = exercises.reduce((a, e) => a + e.sets, 0);
+  const done = exercises.reduce((a, e) => a + sessionData[e.name].filter(s => s.done).length, 0);
+  const elapsed = sessionStart ? Math.round((Date.now() - sessionStart) / 60000) : 0;
+  document.getElementById('sessionSummaryText').innerHTML =
+    '<strong style="color:#f0f0f0">' + currentDay + '</strong><br>' +
+    done + ' of ' + total + ' sets completed · ' + elapsed + ' min<br><br>' +
+    '<span style="color:#666;font-size:0.8rem;">' + (fileHandle ? 'Progress will be auto-saved to your file.' : 'You\'ll be prompted to choose a save location.') + '</span>';
+  openModal('finishModal');
+}
+
+function confirmFinish() {
+  const elapsed = sessionStart ? Math.round((Date.now() - sessionStart) / 60000) : 0;
+  history.push({
+    day: currentDay,
+    date: new Date().toISOString(),
+    duration: elapsed,
+    exercises: JSON.parse(JSON.stringify(sessionData)),
+  });
+  closeModal('finishModal');
+  updateDataBanner();
+  saveData();
+  // Reset
+  currentDay = null;
+  sessionData = {};
+  document.getElementById('sessionTitle').textContent = 'SELECT DAY';
+  document.getElementById('sessionMeta').textContent = 'Choose a workout to begin';
+  document.getElementById('sessionAction').innerHTML = '<button class="btn-start" onclick="showDayPicker()">Pick Day</button>';
+  document.getElementById('exerciseList').innerHTML = '<div class="empty-state"><div class="empty-icon">🏋️</div><div class="empty-text">Select a workout day to begin tracking your session.</div></div>';
+  document.getElementById('sessionProgressFill').style.width = '0%';
+}
+
+// ── PROGRESS TAB ──────────────────────────────────────────────────────────────
+function getAllExercises() {
+  const all = new Set();
+  Object.values(PROGRAM).forEach(day => day.forEach(ex => all.add(ex.name)));
+  return Array.from(all).sort();
+}
+
+function populateProgressSelect() {
+  const sel = document.getElementById('progressExerciseSelect');
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">— Select Exercise —</option>';
+  getAllExercises().forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name; opt.textContent = name;
+    sel.appendChild(opt);
+  });
+  if (prev) sel.value = prev;
+  renderProgressChart();
+}
+
+function renderProgressChart() {
+  const exName = document.getElementById('progressExerciseSelect').value;
+  const container = document.getElementById('chartContainer');
+  const histList = document.getElementById('progressHistoryList');
+  if (!exName) { container.innerHTML = '<div class="no-data">Select an exercise to view progress</div>'; histList.innerHTML = ''; return; }
+
+  const points = [];
+  history.forEach(sess => {
+    if (sess.exercises && sess.exercises[exName]) {
+      const sets = sess.exercises[exName].filter(s => s.done && s.weight);
+      if (sets.length) {
+        const maxWeight = Math.max(...sets.map(s => parseFloat(s.weight) || 0));
+        points.push({ date: sess.date, maxWeight, sets, day: sess.day });
+      }
+    }
+  });
+
+  histList.innerHTML = '';
+  if (!points.length) { container.innerHTML = '<div class="no-data">No data for this exercise yet</div>'; return; }
+
+  container.innerHTML = '<canvas id="progressChart"></canvas>';
+  if (progressChart) progressChart.destroy();
+  progressChart = new Chart(document.getElementById('progressChart').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: points.map(p => new Date(p.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })),
+      datasets: [{ data: points.map(p => p.maxWeight), borderColor: '#c8ff00', backgroundColor: 'rgba(200,255,0,0.05)', pointBackgroundColor: '#c8ff00', pointRadius: 5, pointHoverRadius: 7, borderWidth: 2, tension: 0.3, fill: true }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: '#181818', borderColor: '#252525', borderWidth: 1, titleColor: '#888', bodyColor: '#f0f0f0' } },
+      scales: {
+        x: { grid: { color: '#1a1a1a' }, ticks: { color: '#555', font: { family: 'DM Mono', size: 10 } } },
+        y: { grid: { color: '#1a1a1a' }, ticks: { color: '#555', font: { family: 'DM Mono', size: 10 } } }
+      }
+    }
+  });
+
+  [...points].reverse().forEach(p => {
+    const item = document.createElement('div');
+    item.className = 'history-item';
+    const setsStr = p.sets.filter(s => s.done).map(s => (s.weight ? s.weight + 'x' : '') + s.reps).join('  ');
+    item.innerHTML =
+      '<div><div class="history-date">' + new Date(p.date).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) + '</div>' +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:0.65rem;color:#444;margin-top:2px;">' + p.day + '</div></div>' +
+      '<div style="text-align:right"><div class="history-best">' + p.maxWeight + ' max</div>' +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:0.62rem;color:#444;margin-top:2px;">' + setsStr + '</div></div>';
+    histList.appendChild(item);
+  });
+}
+
+// ── HISTORY TAB ───────────────────────────────────────────────────────────────
+function renderHistory() {
+  const el = document.getElementById('historyList');
+  if (!history.length) { el.innerHTML = '<div class="no-data" style="height:120px;">No sessions logged yet</div>'; return; }
+  el.innerHTML = '';
+  [...history].reverse().forEach((sess, idx) => {
+    const exList = sess.exercises ? Object.keys(sess.exercises) : [];
+    const totalDone = exList.reduce((a, k) => a + sess.exercises[k].filter(s => s.done).length, 0);
+    const card = document.createElement('div');
+    card.style.cssText = 'background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px 16px;margin-bottom:10px;';
+    card.innerHTML =
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">' +
+        '<div><div style="font-family:\'Bebas Neue\',cursive;font-size:1.3rem;letter-spacing:2px;">' + sess.day + '</div>' +
+        '<div style="font-family:\'DM Mono\',monospace;font-size:0.65rem;color:#555;margin-top:2px;">' + new Date(sess.date).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }) + '</div></div>' +
+        '<div style="text-align:right"><div style="font-family:\'DM Mono\',monospace;font-size:0.7rem;color:var(--accent);">' + totalDone + ' sets</div>' +
+        (sess.duration ? '<div style="font-family:\'DM Mono\',monospace;font-size:0.62rem;color:#444;">' + sess.duration + ' min</div>' : '') + '</div>' +
+      '</div>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:6px;">' +
+        exList.map(name => {
+          const done = sess.exercises[name].filter(s => s.done).length;
+          const total = sess.exercises[name].length;
+          return '<span style="background:#181818;border:1px solid #252525;border-radius:3px;padding:3px 8px;font-family:\'DM Mono\',monospace;font-size:0.6rem;color:' + (done===total?'var(--accent)':'#555') + ';">' + name + '</span>';
+        }).join('') +
+      '</div>' +
+      '<button onclick="deleteSession(' + (history.length-1-idx) + ',event)" style="margin-top:12px;background:none;border:none;color:#333;font-family:\'DM Mono\',monospace;font-size:0.62rem;letter-spacing:1px;cursor:pointer;text-transform:uppercase;">x Delete</button>';
+    el.appendChild(card);
+  });
+}
+
+function deleteSession(idx, e) {
+  e.stopPropagation();
+  if (!confirm('Delete this session?')) return;
+  history.splice(idx, 1);
+  updateDataBanner();
+  renderHistory();
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+</script>
+</body>
+</html>
